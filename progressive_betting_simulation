@@ -1,0 +1,184 @@
+import random
+import matplotlib.pyplot as plt
+
+
+def spin():
+    """
+    Simulate one bet.
+
+    Returns True for a win and False for a loss.
+    Represents a simple 50/50 outcome (like a coin toss).
+    """
+    return random.randint(0, 1) == 1
+
+
+def progressive_session(start_balance, base_bet, max_steps):
+    """
+    Run a single progressive betting session.
+
+    start_balance: how much money we begin with
+    base_bet: the starting bet amount
+    max_steps: maximum number of bets allowed
+
+    Returns:
+        steps – bet numbers (for plotting)
+        balance_history – account balance after each bet
+    """
+
+    # Basic validation to prevent unrealistic inputs
+    if start_balance <= 0:
+        raise ValueError("Starting balance must be greater than zero.")
+
+    if base_bet <= 0:
+        raise ValueError("Base bet must be greater than zero.")
+
+    if base_bet > start_balance:
+        raise ValueError("Base bet cannot be more than the starting balance.")
+
+    balance = start_balance
+    wager = base_bet
+
+    steps = []
+    balance_history = []
+
+    step = 0
+
+    # Continue betting until we reach the limit or cannot continue
+    while step < max_steps:
+
+        # Stop if the next bet cannot be afforded
+        if wager > balance:
+            break
+
+        outcome = spin()
+
+        # Progressive doubling logic
+        if outcome:
+            # Win: add winnings and reset bet size
+            balance += wager
+            wager = base_bet
+        else:
+            # Loss: subtract bet and double next wager
+            balance -= wager
+            wager *= 2
+
+        steps.append(step)
+        balance_history.append(balance)
+
+        # Stop if balance reaches zero
+        if balance <= 0:
+            break
+
+        step += 1
+
+    return steps, balance_history
+
+
+def get_user_inputs():
+    """
+    Collect user inputs and ensure they are valid.
+    Keeps prompting until correct values are entered.
+    """
+
+    while True:
+        try:
+            start_balance = float(input("Starting balance: "))
+            base_bet = float(input("Initial bet amount: "))
+            max_steps = int(input("Number of bets per session: "))
+            total_sessions = int(input("Number of sessions: "))
+
+            if start_balance <= 0:
+                raise ValueError("Starting balance must be positive.")
+
+            if base_bet <= 0:
+                raise ValueError("Initial bet must be positive.")
+
+            if base_bet > start_balance:
+                raise ValueError("Initial bet cannot exceed starting balance.")
+
+            if max_steps <= 0 or total_sessions <= 0:
+                raise ValueError("Number of bets and sessions must be positive integers.")
+
+            return start_balance, base_bet, max_steps, total_sessions
+
+        except ValueError as e:
+            print(f"Input error: {e}\n")
+
+
+def main():
+    """
+    Main execution:
+    - Get inputs
+    - Run multiple simulations
+    - Plot balance paths
+    - Show overall outcomes
+    """
+
+    try:
+        start_balance, base_bet, max_steps, total_sessions = get_user_inputs()
+
+        profit_total = 0
+        loss_total = 0
+        bust_total = 0
+
+        plt.figure(figsize=(14, 6))
+
+        # ----- Balance Paths -----
+        plt.subplot(1, 2, 1)
+
+        for _ in range(total_sessions):
+
+            steps, balances = progressive_session(
+                start_balance,
+                base_bet,
+                max_steps
+            )
+
+            final_balance = balances[-1] if balances else start_balance
+
+            if final_balance > start_balance:
+                profit_total += 1
+            elif final_balance <= 0:
+                bust_total += 1
+            else:
+                loss_total += 1
+
+            plt.plot(steps, balances)
+
+        plt.xlabel("Bet number")
+        plt.ylabel("Account balance")
+        plt.title("Progressive betting balance paths")
+
+        # ----- Outcome Distribution -----
+        plt.subplot(1, 2, 2)
+
+        values = []
+        labels = []
+
+        if profit_total > 0:
+            values.append(profit_total)
+            labels.append("Profit")
+
+        if loss_total > 0:
+            values.append(loss_total)
+            labels.append("Loss")
+
+        if bust_total > 0:
+            values.append(bust_total)
+            labels.append("Bust")
+
+        if len(values) == 0:
+            raise RuntimeError("No simulation data available for plotting.")
+
+        plt.pie(values, labels=labels, autopct="%.1f%%", startangle=90)
+        plt.title("Session outcomes")
+
+        plt.tight_layout()
+        plt.show()
+
+    except Exception as e:
+        print(f"Unexpected error: {e}")
+
+
+if __name__ == "__main__":
+    main()
