@@ -1,9 +1,9 @@
 Progressive Betting Strategy Simulation
 Overview
 
-This project simulates a progressive bet-doubling strategy using Python. The basic idea is straightforward: after every loss, the next bet is doubled in an attempt to recover previous losses once a win eventually occurs.
+This project simulates a progressive bet-doubling strategy using Python. After every loss, the next bet is doubled in an attempt to recover previous losses once a win eventually occurs.
 
-On paper, the approach looks convincing. A single win after a losing streak should recover earlier losses and leave a small profit. However, this assumes unlimited funds and ignores the possibility of extended losing runs.
+A single win after a losing streak should recover earlier losses and leave a small profit. However, this assumes unlimited funds and ignores the possibility of extended losing runs.
 
 This simulation explores what actually happens when the strategy is applied repeatedly with a limited starting balance.
 
@@ -47,7 +47,7 @@ Bet £4 → Win → Balance £11
 
 Net profit: £1
 
-This example shows why the strategy can appear appealing. Small gains occur regularly. However, a prolonged losing streak can quickly deplete the available balance.
+This example shows why the strategy can appear appealing, small gains occur regularly. However, a prolonged losing streak can quickly deplete the available balance.
 
 What This Program Does
 
